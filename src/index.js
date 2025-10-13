@@ -39,6 +39,7 @@ io.on("connection", (socket) => {
 });
 
 // Ruta raíz
+// Ruta raíz de prueba
 app.get("/", (req, res) => {
   res.send("Bienvenido a la API Encrocante 🚀");
 });
