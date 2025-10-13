@@ -1,0 +1,28 @@
+{
+  "name": "backend-encrocante",
+  "version": "1.0.0",
+  "description": "Backend del sistema Encrocante con Node.js, Express y MySQL",
+  "main": "src/index.js",
+  "keywords": [],
+  "author": "Roy Reyes",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.15.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
