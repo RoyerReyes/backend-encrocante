@@ -8,6 +8,7 @@ import platillosRoutes from "./routes/platillos.js";
 import authRoutes from "./routes/auth.js";
 import pedidosRoutes from "./routes/pedidos.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
+import detallePedidoRoutes from "./routes/detallePedido.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/platillos", platillosRoutes);
 app.use("/pedidos", pedidosRoutes);
+app.use("/detalles", detallePedidoRoutes);
 
 // Ruta raíz
 app.get("/", (req, res) => {
