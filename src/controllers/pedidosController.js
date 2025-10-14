@@ -1,9 +1,11 @@
+import { io } from "../app.js";
 import {
   getAllPedidos,
   getPedidosByUsuario,
   createPedido,
   updateEstadoPedido,
-  deletePedido
+  deletePedido,
+  getPedidoById
 } from "../models/pedido.js";
 
 /**
@@ -80,6 +82,13 @@ export const actualizarEstado = async (req, res, next) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Pedido no encontrado" });
     }
+
+    // Obtener el pedido actualizado para emitirlo
+    const pedidoActualizado = await getPedidoById(id);
+
+    // Emitir evento de socket.io
+    io.emit("pedido_actualizado", pedidoActualizado);
+
     res.json({ message: "Estado actualizado ✅" });
   } catch (error) {
     next(error);

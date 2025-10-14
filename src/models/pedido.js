@@ -1,5 +1,19 @@
 import db from "../config/db.js";
 
+export const getPedidoById = async (id) => {
+  const sql = `
+    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.observaciones,
+           u.id AS usuario_id, u.nombre AS mesero, m.id AS mesa_id, m.numero AS mesa, c.id AS cliente_id, c.nombre AS cliente
+    FROM pedidos p
+    LEFT JOIN usuarios u ON p.usuario_id = u.id
+    LEFT JOIN mesas m ON p.mesa_id = m.id
+    LEFT JOIN clientes c ON p.cliente_id = c.id
+    WHERE p.id = ?
+  `;
+  const [rows] = await db.promise().query(sql, [id]);
+  return rows[0];
+};
+
 // Obtener todos los pedidos (con JOIN a usuarios, mesas y clientes)
 export const getAllPedidos = async () => {
   const sql = `
