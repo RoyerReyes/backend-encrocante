@@ -28,7 +28,7 @@ app.use("/pedidos", pedidosRoutes); // <-- montamos router de pedidos
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // ⚠️ en producción restringir a tu frontend
+    origin: process.env.CORS_ORIGIN, // Lee la URL permitida desde .env
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
