@@ -7,18 +7,17 @@ import {
 } from "../models/platillo.js";
 
 // GET todos los platillos
-export const listarPlatillos = async (req, res) => {
+export const listarPlatillos = async (req, res, next) => {
   try {
     const platillos = await getAllPlatillos();
     res.json(platillos);
   } catch (error) {
-    console.error("Error al obtener platillos:", error);
-    res.status(500).json({ error: "Error al obtener los platillos" });
+    next(error);
   }
 };
 
 // GET platillo por ID
-export const obtenerPlatillo = async (req, res) => {
+export const obtenerPlatillo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const platillo = await getPlatilloById(id);
@@ -27,13 +26,12 @@ export const obtenerPlatillo = async (req, res) => {
     }
     res.json(platillo);
   } catch (error) {
-    console.error("Error al obtener platillo:", error);
-    res.status(500).json({ error: "Error al obtener el platillo" });
+    next(error);
   }
 };
 
 // POST crear platillo
-export const crearPlatillo = async (req, res) => {
+export const crearPlatillo = async (req, res, next) => {
   try {
     const { nombre, precio, categoria_id, activo } = req.body;
 
@@ -43,13 +41,12 @@ export const crearPlatillo = async (req, res) => {
       platillo: nuevoPlatillo
     });
   } catch (error) {
-    console.error("Error al crear platillo:", error);
-    res.status(500).json({ error: "Error al crear platillo" });
+    next(error);
   }
 };
 
 // PUT actualizar platillo
-export const actualizarPlatillo = async (req, res) => {
+export const actualizarPlatillo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const data = req.body;
@@ -61,13 +58,12 @@ export const actualizarPlatillo = async (req, res) => {
     }
     res.json({ message: "Platillo actualizado ✅" });
   } catch (error) {
-    console.error("Error al actualizar platillo:", error);
-    res.status(500).json({ error: "Error al actualizar platillo" });
+    next(error);
   }
 };
 
 // DELETE eliminar platillo
-export const eliminarPlatillo = async (req, res) => {
+export const eliminarPlatillo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await deletePlatillo(id);
@@ -77,7 +73,6 @@ export const eliminarPlatillo = async (req, res) => {
     }
     res.json({ message: "Platillo eliminado 🗑️" });
   } catch (error) {
-    console.error("Error al eliminar platillo:", error);
-    res.status(500).json({ error: "Error al eliminar platillo" });
+    next(error);
   }
 };

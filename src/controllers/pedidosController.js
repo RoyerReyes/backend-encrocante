@@ -11,7 +11,7 @@ import {
  * - admin => todos
  * - mesero => solo los del usuario (req.user.id)
  */
-export const listarPedidos = async (req, res) => {
+export const listarPedidos = async (req, res, next) => {
   const { rol, id: usuario_id } = req.user; // viene del JWT
 
   try {
@@ -25,8 +25,7 @@ export const listarPedidos = async (req, res) => {
     }
     res.json(pedidos);
   } catch (error) {
-    console.error(`❌ Error obtener pedidos (${rol}):`, error);
-    res.status(500).json({ error: "Error al obtener pedidos" });
+    next(error);
   }
 };
 
@@ -34,7 +33,7 @@ export const listarPedidos = async (req, res) => {
  * Crear pedido (mesero o admin)
  * Request body: { mesa_id, cliente_id, tipo, total, observaciones }
  */
-export const crearPedido = async (req, res) => {
+export const crearPedido = async (req, res, next) => {
   const { rol, id: usuario_id } = req.user;
   if (rol !== "mesero" && rol !== "admin") {
     return res.status(403).json({ message: "Solo meseros o admins pueden crear pedidos" });
@@ -58,8 +57,7 @@ export const crearPedido = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error al crear pedido:", error);
-    res.status(500).json({ error: "Error al crear pedido" });
+    next(error);
   }
 };
 
@@ -67,7 +65,7 @@ export const crearPedido = async (req, res) => {
  * Actualizar estado del pedido (solo admin)
  * Body: { estado }
  */
-export const actualizarEstado = async (req, res) => {
+export const actualizarEstado = async (req, res, next) => {
   const { rol } = req.user;
   if (rol !== "admin") {
     return res.status(403).json({ message: "Solo admin puede actualizar pedidos" });
@@ -84,15 +82,14 @@ export const actualizarEstado = async (req, res) => {
     }
     res.json({ message: "Estado actualizado ✅" });
   } catch (error) {
-    console.error("❌ Error al actualizar estado:", error);
-    res.status(500).json({ error: "Error al actualizar pedido" });
+    next(error);
   }
 };
 
 /**
  * Eliminar pedido (solo admin)
  */
-export const eliminarPedido = async (req, res) => {
+export const eliminarPedido = async (req, res, next) => {
   const { rol } = req.user;
   if (rol !== "admin") {
     return res.status(403).json({ message: "Solo admin puede eliminar pedidos" });
@@ -107,7 +104,6 @@ export const eliminarPedido = async (req, res) => {
     }
     res.json({ message: "Pedido eliminado 🗑️" });
   } catch (error) {
-    console.error("❌ Error al eliminar pedido:", error);
-    res.status(500).json({ error: "Error al eliminar pedido" });
+    next(error);
   }
 };

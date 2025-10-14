@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import platillosRoutes from "./routes/platillos.js";
 import authRoutes from "./routes/auth.js";
 import pedidosRoutes from "./routes/pedidos.js"; // <-- agregado
+import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 dotenv.config();
 
@@ -45,6 +46,9 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {
   res.send("Bienvenido a la API Encrocante 🚀");
 });
+
+// Manejador de errores centralizado (DEBE SER EL ÚLTIMO MIDDLEWARE)
+app.use(errorHandler);
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
