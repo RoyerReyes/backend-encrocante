@@ -23,9 +23,8 @@ describe('Usuarios API', () => {
     usuarioCreadoId = result.insertId;
   });
 
-  afterAll((done) => {
-    db.end();
-    done();
+  afterAll(async () => {
+    await db.promise().end();
   });
 
   describe('GET /usuarios', () => {
@@ -92,8 +91,9 @@ describe('Usuarios API', () => {
     });
 
     it('debería devolver 404 si el usuario a eliminar no existe', async () => {
+      // Usamos un ID que es muy improbable que exista para asegurar que la prueba es independiente.
       const res = await request(app)
-        .delete(`/usuarios/${usuarioCreadoId}`)
+        .delete('/usuarios/999999')
         .set('Authorization', `Bearer ${adminToken}`);
       expect(res.statusCode).toEqual(404);
     });

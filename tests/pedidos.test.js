@@ -25,14 +25,8 @@ describe('Pedidos API', () => {
     await db.promise().query('SET FOREIGN_KEY_CHECKS = 1');
   });
 
-  afterAll((done) => {
-    db.end((err) => {
-      if (err) {
-        console.error('Error closing the database connection:', err);
-        return done(err);
-      }
-      done();
-    });
+  afterAll(async () => {
+    await db.promise().end();
   });
 
   describe('POST /pedidos', () => {

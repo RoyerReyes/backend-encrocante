@@ -6,28 +6,26 @@ import db from '../src/config/db.js';
 describe('GET /platillos', () => {
   let token;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     // Generamos un token JWT para un usuario con rol 'admin' para usar en las pruebas
     const payload = { id: 99, rol: 'admin', nombre: 'Test Admin' };
     token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Limpiar la tabla para un estado de prueba limpio
+    await db.promise().query('SET FOREIGN_KEY_CHECKS = 0');
+    await db.promise().query('TRUNCATE TABLE platillos');
+    await db.promise().query('SET FOREIGN_KEY_CHECKS = 1');
   });
 
-  afterAll((done) => {
+  afterAll(async () => {
     // Cierra la conexión a la base de datos después de todas las pruebas
-    db.end((err) => {
-      if (err) {
-        console.error('Error closing the database connection:', err);
-        return done(err);
-      }
-      done();
-    });
+    await db.promise().end();
   });
 
   it('debería responder con un código de estado 200 y un array de platillos', async () => {
     const response = await request(app)
       .get('/platillos')
-      .set('Authorization', `Bearer ${token}`) // Adjuntamos el token
-      .send();
+      .set('Authorization', `Bearer ${token}`); // Adjuntamos el token
 
     expect(response.statusCode).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
@@ -35,7 +33,7 @@ describe('GET /platillos', () => {
 
   it('debería responder con 401 si no se proporciona un token', async () => {
     const response = await request(app).get('/platillos').send();
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(401); // O 403 dependiendo de la implementación del middleware
   });
 
   describe('POST /platillos', () => {
@@ -79,16 +77,13 @@ describe('GET /platillos', () => {
       const deleteResponse = await request(app)
         .delete(`/platillos/${platilloId}`)
         .set('Authorization', `Bearer ${token}`)
-        .send();
 
       expect(deleteResponse.statusCode).toBe(200);
       expect(deleteResponse.body.message).toContain('eliminado');
 
       // 3. Verificar que el platillo ya no existe
       const getResponse = await request(app)
-        .get(`/platillos/${platilloId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send();
+        .get(`/platillos/${platilloId}`).set('Authorization', `Bearer ${token}`);
       
       expect(getResponse.statusCode).toBe(404);
     });
@@ -96,8 +91,7 @@ describe('GET /platillos', () => {
     it('debería responder con 404 si el platillo a eliminar no existe', async () => {
       const response = await request(app)
         .delete('/platillos/99999')
-        .set('Authorization', `Bearer ${token}`)
-        .send();
+        .set('Authorization', `Bearer ${token}`);
       expect(response.statusCode).toBe(404);
     });
   });
@@ -144,8 +138,7 @@ describe('GET /platillos', () => {
       // 2. Obtener el platillo por su ID
       const response = await request(app)
         .get(`/platillos/${platilloId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send();
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('id', platilloId);
@@ -155,8 +148,7 @@ describe('GET /platillos', () => {
     it('debería responder con 404 si el platillo no existe', async () => {
       const response = await request(app)
         .get('/platillos/99999') // Un ID que probablemente no exista
-        .set('Authorization', `Bearer ${token}`)
-        .send();
+        .set('Authorization', `Bearer ${token}`);
       expect(response.statusCode).toBe(404);
     });
   });
@@ -164,8 +156,7 @@ describe('GET /platillos', () => {
   it('debería responder con 403 si el token es inválido', async () => {
     const response = await request(app)
       .get('/platillos')
-      .set('Authorization', 'Bearer tokeninvalido')
-      .send();
+      .set('Authorization', 'Bearer tokeninvalido');
     expect(response.statusCode).toBe(403);
   });
 });

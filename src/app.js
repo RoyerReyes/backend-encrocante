@@ -24,7 +24,10 @@ app.use("/auth", authRoutes);
 app.use("/platillos", platillosRoutes);
 app.use("/pedidos", pedidosRoutes);
 app.use("/usuarios", usuariosRoutes); // Montar rutas de usuarios
-app.use("/detalles", detallePedidoRoutes);
+
+// Las rutas para actualizar y eliminar un detalle por su ID específico
+// Las rutas para crear y listar detalles estarán anidadas en pedidos.js
+app.use("/detalle-pedido", detallePedidoRoutes);
 
 // Ruta raíz
 app.get("/", (req, res) => {
