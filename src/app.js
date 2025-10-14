@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import platillosRoutes from "./routes/platillos.js";
 import authRoutes from "./routes/auth.js";
 import pedidosRoutes from "./routes/pedidos.js";
+import usuariosRoutes from "./routes/usuarios.js"; // Importar rutas de usuarios
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 import detallePedidoRoutes from "./routes/detallePedido.js";
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/platillos", platillosRoutes);
 app.use("/pedidos", pedidosRoutes);
+app.use("/usuarios", usuariosRoutes); // Montar rutas de usuarios
 app.use("/detalles", detallePedidoRoutes);
 
 // Ruta raíz
