@@ -1,4 +1,5 @@
 import db from "../config/db.js";
+import { createDetallesPedido } from "./detallePedido.js";
 
 export const getPedidoById = async (id) => {
   const sql = `
@@ -44,16 +45,52 @@ export const getPedidosByUsuario = async (usuario_id) => {
   return rows;
 };
 
-// Crear pedido
-export const createPedido = async (pedido) => {
-  const { mesa_id = null, cliente_id = null, tipo, usuario_id, total, observaciones = null } = pedido;
-  const sql = `
-    INSERT INTO pedidos (mesa_id, cliente_id, tipo, usuario_id, total, observaciones)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-  const [result] = await db.promise().query(sql, [mesa_id, cliente_id, tipo, usuario_id, total, observaciones]);
-  return { id: result.insertId, ...pedido };
+// Crear pedido y sus detalles en una transacción
+export const createPedido = async (pedidoData) => {
+  const { mesa_id, cliente_id, tipo, usuario_id, total, observaciones, detalles } = pedidoData;
+  const estado = 'pendiente'; // Estado por defecto
+
+  let connection;
+  try {
+    // 1. Obtener una conexión del pool
+    connection = await db.promise().getConnection();
+
+    // 2. Iniciar la transacción
+    await connection.beginTransaction();
+
+    // 3. Insertar el pedido principal
+    const pedidoSql = `
+      INSERT INTO pedidos (mesa_id, cliente_id, tipo, usuario_id, total, observaciones, estado)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [pedidoResult] = await connection.query(pedidoSql, [mesa_id, cliente_id, tipo, usuario_id, total, observaciones, estado]);
+    const pedido_id = pedidoResult.insertId;
+
+    // 4. Insertar los detalles del pedido
+    await createDetallesPedido(detalles, pedido_id, connection);
+
+    // 5. Confirmar la transacción
+    await connection.commit();
+
+    // 6. Devolver el pedido completo
+    return { id: pedido_id, ...pedidoData, estado };
+
+  } catch (error) {
+    // Si hay un error, revertir la transacción
+    if (connection) {
+      await connection.rollback();
+    }
+    // Propagar el error para que el controlador lo maneje
+    throw error;
+
+  } finally {
+    // 7. Liberar la conexión en cualquier caso
+    if (connection) {
+      connection.release();
+    }
+  }
 };
+
 
 // Actualizar estado de pedido
 export const updateEstadoPedido = async (id, estado) => {

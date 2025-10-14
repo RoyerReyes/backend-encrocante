@@ -18,8 +18,8 @@ describe('GET /platillos', () => {
   });
 
   afterAll(async () => {
-    // Cierra la conexión a la base de datos después de todas las pruebas
-    await db.promise().end();
+    // La conexión a la base de datos se gestiona de forma global
+    db.end();
   });
 
   it('debería responder con un código de estado 200 y un array de platillos', async () => {

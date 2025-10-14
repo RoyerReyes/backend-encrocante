@@ -26,7 +26,8 @@ describe('Pedidos API', () => {
   });
 
   afterAll(async () => {
-    await db.promise().end();
+    // La conexión a la base de datos se gestiona de forma global
+    db.end();
   });
 
   describe('POST /pedidos', () => {

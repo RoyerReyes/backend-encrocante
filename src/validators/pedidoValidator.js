@@ -4,8 +4,12 @@ export const createPedidoSchema = Joi.object({
   mesa_id: Joi.number().integer().positive().allow(null),
   cliente_id: Joi.number().integer().positive().allow(null),
   tipo: Joi.string().valid('mesa', 'delivery', 'recojo').required(),
-  total: Joi.number().positive().required(),
-  observaciones: Joi.string().allow(null, '')
+  observaciones: Joi.string().allow(null, ''),
+  detalles: Joi.array().items(Joi.object({
+    platillo_id: Joi.number().integer().positive().required(),
+    cantidad: Joi.number().integer().positive().required(),
+    nota: Joi.string().allow(null, '') // Campo opcional para notas por platillo
+  })).min(1).required()
 });
 
 export const updateEstadoPedidoSchema = Joi.object({

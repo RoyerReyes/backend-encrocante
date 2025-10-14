@@ -19,12 +19,18 @@
   },
   "devDependencies": {
     "jest": "^30.2.0",
+    "knip": "^5.65.0",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4"
   },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
+  },
+  "knip": {
+    "ignoreDependencies": [
+      "jest"
+    ]
   }
 }

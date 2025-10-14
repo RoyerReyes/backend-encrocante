@@ -7,6 +7,7 @@ import {
   deletePedido,
   getPedidoById
 } from "../models/pedido.js";
+import { getPlatilloById } from "../models/platillo.js";
 
 /**
  * Listar pedidos:
@@ -33,7 +34,7 @@ export const listarPedidos = async (req, res, next) => {
 
 /**
  * Crear pedido (mesero o admin)
- * Request body: { mesa_id, cliente_id, tipo, total, observaciones }
+ * Request body: { mesa_id, cliente_id, tipo, observaciones, detalles: [{ platillo_id, cantidad, nota }] }
  */
 export const crearPedido = async (req, res, next) => {
   const { rol, id: usuario_id } = req.user;
@@ -42,16 +43,45 @@ export const crearPedido = async (req, res, next) => {
   }
 
   try {
-    let { mesa_id = null, cliente_id = null, tipo, total, observaciones = null } = req.body;
+    const { mesa_id, cliente_id, tipo, observaciones, detalles } = req.body;
 
-    const nuevoPedido = await createPedido({
+    // 1. Validar platillos y calcular total
+    let total = 0;
+    const detallesConPrecio = [];
+
+    for (const item of detalles) {
+      const platillo = await getPlatilloById(item.platillo_id);
+
+      if (!platillo) {
+        return res.status(400).json({ message: `El platillo con ID ${item.platillo_id} no existe.` });
+      }
+      if (!platillo.activo) {
+        return res.status(400).json({ message: `El platillo '${platillo.nombre}' no está disponible.` });
+      }
+
+      const subtotal = platillo.precio * item.cantidad;
+      total += subtotal;
+
+      detallesConPrecio.push({
+        ...item,
+        precio_unitario: platillo.precio,
+        subtotal
+      });
+    }
+
+    // 2. Crear el objeto del pedido
+    const pedidoData = {
       mesa_id: mesa_id || null,
       cliente_id: cliente_id || null,
       tipo,
       usuario_id,
-      total: parseFloat(total),
-      observaciones
-    });
+      total,
+      observaciones,
+      detalles: detallesConPrecio
+    };
+
+    // 3. Llamar al modelo para la transacción
+    const nuevoPedido = await createPedido(pedidoData);
 
     res.status(201).json({
       message: "Pedido creado 🚀",
@@ -62,6 +92,7 @@ export const crearPedido = async (req, res, next) => {
     next(error);
   }
 };
+
 
 /**
  * Actualizar estado del pedido (solo admin)

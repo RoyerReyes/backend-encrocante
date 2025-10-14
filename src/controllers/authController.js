@@ -31,16 +31,12 @@ export const login = async (req, res, next) => {
   try {
     const { usuario, password } = req.body;
 
-    // Buscar usuario
+    // Buscar usuario y verificar contraseña
     const user = await UserModel.findByUsername(usuario);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
+    const isMatch = user ? await bcrypt.compare(password, user.password) : false;
 
-    // Verificar contraseña
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Contraseña incorrecta" });
+    if (!user || !isMatch) {
+      return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
     }
 
     // Generar token JWT
@@ -49,7 +45,7 @@ export const login = async (req, res, next) => {
     res.json({
       message: "Login exitoso ✅",
       token,
-      usuario: { id: user.id, nombre: user.nombre, rol: user.rol },
+      usuario: { id: user.id, nombre: user.nombre, usuario: user.usuario, rol: user.rol },
     });
   } catch (error) {
     next(error);

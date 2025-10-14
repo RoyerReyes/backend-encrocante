@@ -17,7 +17,7 @@ router.use(authMiddleware);
 // Rutas
 router.get("/", listarPedidos);
 router.post("/", checkRole("admin", "mesero"), validate(createPedidoSchema), crearPedido);
-router.put("/:id", checkRole("admin"), validate(updateEstadoPedidoSchema), actualizarEstado);
+router.patch("/:id/estado", checkRole("admin"), validate(updateEstadoPedidoSchema), actualizarEstado);
 router.delete("/:id", checkRole("admin"), eliminarPedido);
 
 export default router;
