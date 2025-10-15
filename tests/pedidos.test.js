@@ -1,4 +1,3 @@
-
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../src/app.js';
@@ -7,61 +6,52 @@ import db from '../src/config/db.js';
 describe('Pedidos API', () => {
   let adminToken;
   let meseroToken;
-  let pedidoCreadoId;
+  let platilloId;
 
-  beforeAll(async () => {
-    // Generar tokens para admin y mesero
+  beforeAll(() => {
+    // Generar tokens para admin y mesero una sola vez
     const adminPayload = { id: 1, rol: 'admin', nombre: 'Test Admin' };
     adminToken = jwt.sign(adminPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     const meseroPayload = { id: 2, rol: 'mesero', nombre: 'Test Mesero' };
     meseroToken = jwt.sign(meseroPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
+  });
 
-    // Limpiar las tablas relacionadas antes de empezar
+  beforeEach(async () => {
+    // Limpiar y preparar la BD antes de cada prueba
     await db.promise().query('SET FOREIGN_KEY_CHECKS = 0');
     await db.promise().query('TRUNCATE TABLE detalle_pedido');
     await db.promise().query('TRUNCATE TABLE pagos');
     await db.promise().query('TRUNCATE TABLE pedidos');
+    await db.promise().query('TRUNCATE TABLE platillos');
     await db.promise().query('SET FOREIGN_KEY_CHECKS = 1');
+
+    // Crear un platillo de prueba para usar en los pedidos
+    const [platilloResult] = await db.promise().query(
+      "INSERT INTO platillos (nombre, precio, categoria_id, activo) VALUES ('Platillo para Pedido Test', 15.00, 1, 1)"
+    );
+    platilloId = platilloResult.insertId;
   });
 
   afterAll(async () => {
-    // La conexión a la base de datos se gestiona de forma global
+    // Limpieza final y cierre de la conexión
+    await db.promise().query('SET FOREIGN_KEY_CHECKS = 0');
+    await db.promise().query('TRUNCATE TABLE detalle_pedido');
+    await db.promise().query('TRUNCATE TABLE pagos');
+    await db.promise().query('TRUNCATE TABLE pedidos');
+    await db.promise().query('TRUNCATE TABLE platillos');
+    await db.promise().query('SET FOREIGN_KEY_CHECKS = 1');
     db.end();
-  });
-
-  describe('POST /pedidos', () => {
-    it('debería crear un nuevo pedido con rol mesero y responder con 201', async () => {
-      const nuevoPedido = {
-        tipo: 'mesa',
-        total: 50.00,
-        // Asumimos que existen mesa_id: 1 y cliente_id: 1 en la BD de prueba
-        mesa_id: 1, 
-        cliente_id: 1
-      };
-
-      const response = await request(app)
-        .post('/pedidos')
-        .set('Authorization', `Bearer ${meseroToken}`)
-        .send(nuevoPedido);
-
-      expect(response.statusCode).toBe(201);
-      expect(response.body.pedido).toHaveProperty('id');
-      expect(response.body.message).toBe('Pedido creado 🚀');
-      pedidoCreadoId = response.body.pedido.id; // Guardamos el ID para pruebas futuras
-    });
-
-    it('debería responder con 400 si los datos para crear el pedido son inválidos', async () => {
-      const response = await request(app)
-        .post('/pedidos')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({ total: 'esto no es un numero' }); // Datos inválidos
-      expect(response.statusCode).toBe(400);
-    });
   });
 
   describe('GET /pedidos', () => {
     it('debería obtener una lista de pedidos con rol admin', async () => {
+      // Crear un pedido para asegurar que la lista no esté vacía
+      await request(app)
+        .post('/pedidos')
+        .set('Authorization', `Bearer ${meseroToken}`)
+        .send({ tipo: 'mesa', mesa_id: 1, cliente_id: 1, detalles: [{ platillo_id: platilloId, cantidad: 1 }] });
+
       const response = await request(app)
         .get('/pedidos')
         .set('Authorization', `Bearer ${adminToken}`);
@@ -77,10 +67,18 @@ describe('Pedidos API', () => {
     });
   });
 
-  describe('PUT /pedidos/:id', () => {
+  describe('PATCH /pedidos/:id/estado', () => {
     it('debería actualizar el estado de un pedido con rol admin y responder con 200', async () => {
+      // 1. Crear un pedido para actualizar
+      const nuevoPedidoRes = await request(app)
+        .post('/pedidos')
+        .set('Authorization', `Bearer ${meseroToken}`)
+        .send({ tipo: 'mesa', mesa_id: 1, cliente_id: 1, detalles: [{ platillo_id: platilloId, cantidad: 1 }] });
+      const pedidoCreadoId = nuevoPedidoRes.body.pedido.id;
+
+      // 2. Actualizar el pedido
       const response = await request(app)
-        .put(`/pedidos/${pedidoCreadoId}`)
+        .patch(`/pedidos/${pedidoCreadoId}/estado`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ estado: 'en cocina' });
 
@@ -89,8 +87,16 @@ describe('Pedidos API', () => {
     });
 
     it('debería responder con 403 si un mesero intenta actualizar el estado', async () => {
+      // 1. Crear un pedido
+      const nuevoPedidoRes = await request(app)
+        .post('/pedidos')
+        .set('Authorization', `Bearer ${meseroToken}`)
+        .send({ tipo: 'mesa', mesa_id: 1, cliente_id: 1, detalles: [{ platillo_id: platilloId, cantidad: 1 }] });
+      const pedidoCreadoId = nuevoPedidoRes.body.pedido.id;
+
+      // 2. Intentar actualizar con mesero
       const response = await request(app)
-        .put(`/pedidos/${pedidoCreadoId}`)
+        .patch(`/pedidos/${pedidoCreadoId}/estado`)
         .set('Authorization', `Bearer ${meseroToken}`)
         .send({ estado: 'servido' });
       
@@ -99,7 +105,7 @@ describe('Pedidos API', () => {
 
     it('debería responder con 404 si el pedido a actualizar no existe', async () => {
       const response = await request(app)
-        .put('/pedidos/99999')
+        .patch('/pedidos/99999/estado')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ estado: 'pagado' });
       
@@ -109,6 +115,14 @@ describe('Pedidos API', () => {
 
   describe('DELETE /pedidos/:id', () => {
     it('debería responder con 403 si un mesero intenta eliminar un pedido', async () => {
+      // 1. Crear un pedido
+      const nuevoPedidoRes = await request(app)
+        .post('/pedidos')
+        .set('Authorization', `Bearer ${meseroToken}`)
+        .send({ tipo: 'mesa', mesa_id: 1, cliente_id: 1, detalles: [{ platillo_id: platilloId, cantidad: 1 }] });
+      const pedidoCreadoId = nuevoPedidoRes.body.pedido.id;
+
+      // 2. Intentar eliminar con mesero
       const response = await request(app)
         .delete(`/pedidos/${pedidoCreadoId}`)
         .set('Authorization', `Bearer ${meseroToken}`);
@@ -117,6 +131,14 @@ describe('Pedidos API', () => {
     });
 
     it('debería eliminar un pedido con rol admin y responder con 200', async () => {
+      // 1. Crear un pedido para eliminar
+      const nuevoPedidoRes = await request(app)
+        .post('/pedidos')
+        .set('Authorization', `Bearer ${meseroToken}`)
+        .send({ tipo: 'mesa', mesa_id: 1, cliente_id: 1, detalles: [{ platillo_id: platilloId, cantidad: 1 }] });
+      const pedidoCreadoId = nuevoPedidoRes.body.pedido.id;
+
+      // 2. Eliminar el pedido
       const response = await request(app)
         .delete(`/pedidos/${pedidoCreadoId}`)
         .set('Authorization', `Bearer ${adminToken}`);

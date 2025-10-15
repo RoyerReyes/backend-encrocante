@@ -101,7 +101,27 @@ export const updateEstadoPedido = async (id, estado) => {
 
 // Eliminar pedido
 export const deletePedido = async (id) => {
-  const sql = `DELETE FROM pedidos WHERE id = ?`;
-  const [result] = await db.promise().query(sql, [id]);
-  return result;
+  let connection;
+  try {
+    connection = await db.promise().getConnection();
+    await connection.beginTransaction();
+
+    // 1. Eliminar los detalles del pedido
+    await connection.query("DELETE FROM detalle_pedido WHERE pedido_id = ?", [id]);
+
+    // 2. Eliminar el pedido
+    const [result] = await connection.query("DELETE FROM pedidos WHERE id = ?", [id]);
+
+    await connection.commit();
+    return result;
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+    throw error;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
 };
