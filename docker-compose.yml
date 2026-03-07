@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+        # Use service name 'db' as host
+      - DB_HOST=db 
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=encrocante
+      - DB_PORT=3306
+      - JWT_SECRET=secreto_super_seguro
+      - PORT=3000
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: encrocante
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Optional: Init script if we wanted to auto-seed
+      # - ./encrocante_bd.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

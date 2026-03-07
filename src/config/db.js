@@ -12,7 +12,9 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  timezone: '-05:00', // Force local time (Peru/Colombia/etc)
+  dateStrings: true   // Return dates as strings to avoid JS auto-conversion
 });
 
 console.log("✅ Pool de conexiones a MySQL creado.");

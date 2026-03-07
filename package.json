@@ -14,13 +14,16 @@
     "express": "^5.1.0",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "mysql2": "^3.15.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "axios": "^1.13.5",
     "jest": "^30.2.0",
     "knip": "^5.65.0",
     "nodemon": "^3.1.10",
+    "socket.io-client": "^4.8.3",
     "supertest": "^7.1.4"
   },
   "scripts": {

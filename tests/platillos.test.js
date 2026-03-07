@@ -14,6 +14,8 @@ describe('GET /platillos', () => {
     // Limpiar la tabla para un estado de prueba limpio
     await db.promise().query('SET FOREIGN_KEY_CHECKS = 0');
     await db.promise().query('TRUNCATE TABLE platillos');
+    await db.promise().query('TRUNCATE TABLE categorias');
+    await db.promise().query("INSERT INTO categorias (id, nombre, descripcion) VALUES (1, 'Test Cat', 'Desc')");
     await db.promise().query('SET FOREIGN_KEY_CHECKS = 1');
   });
 
@@ -70,7 +72,7 @@ describe('GET /platillos', () => {
         .post('/platillos')
         .set('Authorization', `Bearer ${token}`)
         .send({ nombre: 'Platillo a Eliminar', precio: 5.0, categoria_id: 1 });
-      
+
       const platilloId = platilloCreado.body.platillo.id;
 
       // 2. Eliminar el platillo
@@ -84,7 +86,7 @@ describe('GET /platillos', () => {
       // 3. Verificar que el platillo ya no existe
       const getResponse = await request(app)
         .get(`/platillos/${platilloId}`).set('Authorization', `Bearer ${token}`);
-      
+
       expect(getResponse.statusCode).toBe(404);
     });
 
@@ -103,7 +105,7 @@ describe('GET /platillos', () => {
         .post('/platillos')
         .set('Authorization', `Bearer ${token}`)
         .send({ nombre: 'Platillo Original', precio: 10.0, categoria_id: 1 });
-      
+
       const platilloId = platilloCreado.body.platillo.id;
 
       // 2. Actualizar el platillo
@@ -132,7 +134,7 @@ describe('GET /platillos', () => {
         .post('/platillos')
         .set('Authorization', `Bearer ${token}`)
         .send({ nombre: 'Platillo para GET', precio: 20.0, categoria_id: 1 });
-      
+
       const platilloId = platilloCreado.body.platillo.id;
 
       // 2. Obtener el platillo por su ID

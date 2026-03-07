@@ -1,0 +1,123 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+  console.log
+    [dotenv@17.2.2] injecting env (7) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    ✅ Pool de conexiones a MySQL creado.
+
+      at log (src/config/db.js:18:9)
+
+  console.log
+    [dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    Iniciando servidor para pruebas...
+
+      at Object.log (tests/socket_integration.test.js:23:13)
+
+(node:5020) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.log
+    Servidor de prueba escuchando en puerto 63570
+
+      at Server.log (tests/socket_integration.test.js:28:17)
+
+  console.log
+    Registrando usuario de prueba... {
+      nombre: 'Test Mesero',
+      usuario: 'mesero_test_1765635172297',
+      password: 'password123',
+      rol: 'mesero'
+    }
+
+      at Object.log (tests/socket_integration.test.js:34:13)
+
+  console.log
+    Usuario registrado.
+
+      at Object.log (tests/socket_integration.test.js:37:15)
+
+  console.log
+    Iniciando sesión...
+
+      at Object.log (tests/socket_integration.test.js:43:13)
+
+  console.log
+    Respuesta login status: 200
+
+      at Object.log (tests/socket_integration.test.js:48:13)
+
+  console.log
+    Token obtenido. Usuario ID: 98
+
+      at Object.log (tests/socket_integration.test.js:55:13)
+
+  console.log
+    Conectando cliente Socket.IO...
+
+      at Object.log (tests/socket_integration.test.js:58:13)
+
+  console.log
+    🔌 Cliente conectado: J0piopvkhqSgbTQ3AAAB
+
+      at Namespace.log (src/socket.js:14:13)
+
+  console.log
+    Cliente Socket conectado ✅
+
+      at Socket.log (tests/socket_integration.test.js:68:17)
+
+FAIL tests/socket_integration.test.js
+  Integración REST -> Socket.IO
+    × Debe recibir evento 'pedido_creado' al crear pedido vía REST (19 ms)
+
+  ● Integración REST -> Socket.IO › Debe recibir evento 'pedido_creado' al crear pedido vía REST
+
+    expected 201 "Created", got 400 "Bad Request"
+
+    [0m [90m 123 |[39m       [33m.[39m[36mset[39m([32m"Authorization"[39m[33m,[39m [32m`Bearer ${token}`[39m)
+     [90m 124 |[39m       [33m.[39msend(nuevoPedido)
+    [31m[1m>[22m[39m[90m 125 |[39m       [33m.[39mexpect([35m201[39m)
+     [90m     |[39m        [31m[1m^[22m[39m
+     [90m 126 |[39m       [33m.[39m[36mcatch[39m(err [33m=>[39m {
+     [90m 127 |[39m         [90m// Si falla la creación (ej: platillo no existe), fallamos el test[39m
+     [90m 128 |[39m         done(err)[33m;[39m[0m
+
+      at Object.expect (tests/socket_integration.test.js:125:8)
+      ----
+      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)
+      at node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (node_modules/supertest/lib/test.js:195:23)
+      at localAssert (node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        1.412 s, estimated 2 s
+Ran all test suites matching tests/socket_integration.test.js.
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "🔌 Cliente desconectado: J0piopvkhqSgbTQ3AAAB".
+
+    [0m [90m 15 |[39m
+     [90m 16 |[39m     socket[33m.[39mon([32m"disconnect"[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m 17 |[39m       console[33m.[39mlog([32m`🔌 Cliente desconectado: ${socket.id}`[39m)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 18 |[39m     })[33m;[39m
+     [90m 19 |[39m   })[33m;[39m
+     [90m 20 |[39m[0m
+
+      at console.log (node_modules/@jest/console/build/index.js:311:10)
+      at Socket.log (src/socket.js:17:15)
+      at Socket.emitReserved (node_modules/socket.io/dist/typed-events.js:56:22)
+      at Socket._onclose (node_modules/socket.io/dist/socket.js:554:14)
+      at Socket.ondisconnect (node_modules/socket.io/dist/socket.js:513:14)
+      at Socket._onpacket (node_modules/socket.io/dist/socket.js:442:22)
+      at node_modules/socket.io/dist/client.js:214:24
+

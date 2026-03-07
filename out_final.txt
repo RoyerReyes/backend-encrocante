@@ -1,0 +1,120 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+  console.log
+    [dotenv@17.2.2] injecting env (7) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    ✅ Pool de conexiones a MySQL creado.
+
+      at log (src/config/db.js:18:9)
+
+  console.log
+    [dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    Iniciando servidor para pruebas...
+
+      at Object.log (tests/socket_integration.test.js:26:13)
+
+(node:9064) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.log
+    Servidor de prueba escuchando en puerto 64404
+
+      at Server.log (tests/socket_integration.test.js:31:17)
+
+  console.log
+    Sembrando datos de prueba...
+
+      at Object.log (tests/socket_integration.test.js:37:13)
+
+  console.log
+    Datos sembrados: Cat=6, Plat=3, Mesa=6
+
+      at Object.log (tests/socket_integration.test.js:46:13)
+
+  console.log
+    Registrando usuario de prueba... {
+      nombre: 'Test Mesero',
+      usuario: 'mesero_test_1765635725008',
+      password: 'password123',
+      rol: 'mesero'
+    }
+
+      at Object.log (tests/socket_integration.test.js:49:13)
+
+  console.log
+    Usuario registrado.
+
+      at Object.log (tests/socket_integration.test.js:52:15)
+
+  console.log
+    Iniciando sesión...
+
+      at Object.log (tests/socket_integration.test.js:58:13)
+
+  console.log
+    Respuesta login status: 200
+
+      at Object.log (tests/socket_integration.test.js:63:13)
+
+  console.log
+    Token obtenido. Usuario ID: 100
+
+      at Object.log (tests/socket_integration.test.js:70:13)
+
+  console.log
+    Conectando cliente Socket.IO...
+
+      at Object.log (tests/socket_integration.test.js:73:13)
+
+  console.log
+    🔌 Cliente conectado: 3nwqVaH5asLStsU6AAAB
+
+      at Namespace.log (src/socket.js:14:13)
+
+  console.log
+    Cliente Socket conectado ✅
+
+      at Socket.log (tests/socket_integration.test.js:83:17)
+
+  console.log
+    Limpiando recursos...
+
+      at Object.log (tests/socket_integration.test.js:98:13)
+
+  console.log
+    🔌 Cliente desconectado: 3nwqVaH5asLStsU6AAAB
+
+      at Socket.log (src/socket.js:17:15)
+
+FAIL tests/socket_integration.test.js
+
+
+  ● Test suite failed to run
+
+    Can't update table 'pedidos' in stored function/trigger because it is already used by statement which invoked this stored function/trigger.
+
+    [0m [90m  97 |[39m
+     [90m  98 |[39m     console[33m.[39mlog([32m"Limpiando recursos..."[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m  99 |[39m     [36mif[39m (usuarioId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM detalle_pedido WHERE pedido_id IN (SELECT id FROM pedidos WHERE usuario_id = ?)"[39m[33m,[39m [usuarioId])[33m;[39m
+     [90m     |[39m                                       [31m[1m^[22m[39m
+     [90m 100 |[39m     [36mif[39m (usuarioId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM pedidos WHERE usuario_id = ?"[39m[33m,[39m [usuarioId])[33m;[39m
+     [90m 101 |[39m     [36mif[39m (platilloId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM platillos WHERE id = ?"[39m[33m,[39m [platilloId])[33m;[39m
+     [90m 102 |[39m     [36mif[39m (categoriaId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM categorias WHERE id = ?"[39m[33m,[39m [categoriaId])[33m;[39m[0m
+
+      at PromisePool.query (node_modules/mysql2/lib/promise/pool.js:36:22)
+      at Object.query (tests/socket_integration.test.js:99:39)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        1.868 s, estimated 2 s
+Ran all test suites matching tests/socket_integration.test.js.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
+^C

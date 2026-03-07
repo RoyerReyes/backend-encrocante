@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos En Crocante</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <header>
+        <div id="status-indicator" class="disconnected" title="Conectando..."></div>
+        <h1>Estado de Pedidos - En Crocante 🥐</h1>
+    </header>
+
+    <main class="board">
+        <!-- Columna En Preparación -->
+        <section class="column cooking">
+            <h2>👨‍🍳 En Preparación</h2>
+            <div id="cooking-list" class="orders-grid">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Columna Listos -->
+        <section class="column ready">
+            <h2>✅ Listos para Recoger</h2>
+            <div id="ready-list" class="orders-grid">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </section>
+    </main>
+
+    <script src="js/display.js"></script>
+</body>
+
+</html>

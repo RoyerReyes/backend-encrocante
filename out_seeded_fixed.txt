@@ -1,0 +1,163 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+  console.log
+    [dotenv@17.2.2] injecting env (7) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    ✅ Pool de conexiones a MySQL creado.
+
+      at log (src/config/db.js:18:9)
+
+  console.log
+    [dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    Iniciando servidor para pruebas...
+
+      at Object.log (tests/socket_integration.test.js:26:13)
+
+(node:8208) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.log
+    Servidor de prueba escuchando en puerto 62660
+
+      at Server.log (tests/socket_integration.test.js:31:17)
+
+  console.log
+    Sembrando datos de prueba...
+
+      at Object.log (tests/socket_integration.test.js:37:13)
+
+  console.log
+    Datos sembrados: Cat=5, Plat=2, Mesa=5
+
+      at Object.log (tests/socket_integration.test.js:46:13)
+
+  console.log
+    Registrando usuario de prueba... {
+      nombre: 'Test Mesero',
+      usuario: 'mesero_test_1765635608889',
+      password: 'password123',
+      rol: 'mesero'
+    }
+
+      at Object.log (tests/socket_integration.test.js:49:13)
+
+  console.log
+    Usuario registrado.
+
+      at Object.log (tests/socket_integration.test.js:52:15)
+
+  console.log
+    Iniciando sesión...
+
+      at Object.log (tests/socket_integration.test.js:58:13)
+
+  console.log
+    Respuesta login status: 200
+
+      at Object.log (tests/socket_integration.test.js:63:13)
+
+  console.log
+    Token obtenido. Usuario ID: 99
+
+      at Object.log (tests/socket_integration.test.js:70:13)
+
+  console.log
+    Conectando cliente Socket.IO...
+
+      at Object.log (tests/socket_integration.test.js:73:13)
+
+  console.log
+    🔌 Cliente conectado: _uNBNrAtaUgZfgAvAAAB
+
+      at Namespace.log (src/socket.js:14:13)
+
+  console.log
+    Cliente Socket conectado ✅
+
+      at Socket.log (tests/socket_integration.test.js:83:17)
+
+  console.error
+    ReferenceError: io is not defined
+        at crearPedido (C:\Users\Admin\AndroidStudioProjects\backend-encrocante\src\controllers\pedidosController.js:143:5)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+    [0m [90m  6 |[39m   [90m// Imprimir el error en la consola para debugging[39m
+     [90m  7 |[39m   [90m// err.stack proporciona más detalles, incluyendo la línea donde ocurrió el error[39m
+    [31m[1m>[22m[39m[90m  8 |[39m   console[33m.[39merror(err[33m.[39mstack)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m  9 |[39m
+     [90m 10 |[39m   [90m// Enviar una respuesta genérica de error al cliente[39m
+     [90m 11 |[39m   [90m// Es una buena práctica no filtrar detalles del error al cliente en producción[39m[0m
+
+      at error (src/middlewares/errorMiddleware.js:8:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at next (src/controllers/pedidosController.js:153:5)
+
+  console.log
+    Limpiando recursos...
+
+      at Object.log (tests/socket_integration.test.js:98:13)
+
+  console.log
+    🔌 Cliente desconectado: _uNBNrAtaUgZfgAvAAAB
+
+      at Socket.log (src/socket.js:17:15)
+
+FAIL tests/socket_integration.test.js
+  ● Integración REST -> Socket.IO › Debe recibir evento 'pedido_creado' al crear pedido vía REST
+
+    expected 201 "Created", got 500 "Internal Server Error"
+
+    [0m [90m 140 |[39m       [33m.[39m[36mset[39m([32m"Authorization"[39m[33m,[39m [32m`Bearer ${token}`[39m)
+     [90m 141 |[39m       [33m.[39msend(nuevoPedido)
+    [31m[1m>[22m[39m[90m 142 |[39m       [33m.[39mexpect([35m201[39m)
+     [90m     |[39m        [31m[1m^[22m[39m
+     [90m 143 |[39m       [33m.[39m[36mcatch[39m(err [33m=>[39m {
+     [90m 144 |[39m         [90m// Si falla la creación (ej: platillo no existe), fallamos el test[39m
+     [90m 145 |[39m         done(err)[33m;[39m[0m
+
+      at Object.expect (tests/socket_integration.test.js:142:8)
+      ----
+      at Test._assertStatus (node_modules/supertest/lib/test.js:309:14)
+      at node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (node_modules/supertest/lib/test.js:195:23)
+      at localAssert (node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (node_modules/supertest/lib/test.js:152:11)
+
+
+  ● Test suite failed to run
+
+    Cannot delete or update a parent row: a foreign key constraint fails (`encrocante_db`.`detalle_pedido`, CONSTRAINT `detalle_pedido_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`))
+
+    [0m [90m  97 |[39m
+     [90m  98 |[39m     console[33m.[39mlog([32m"Limpiando recursos..."[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m  99 |[39m     [36mif[39m (usuarioId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM pedidos WHERE usuario_id = ?"[39m[33m,[39m [usuarioId])[33m;[39m
+     [90m     |[39m                                       [31m[1m^[22m[39m
+     [90m 100 |[39m     [36mif[39m (platilloId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM platillos WHERE id = ?"[39m[33m,[39m [platilloId])[33m;[39m
+     [90m 101 |[39m     [36mif[39m (categoriaId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM categorias WHERE id = ?"[39m[33m,[39m [categoriaId])[33m;[39m
+     [90m 102 |[39m     [36mif[39m (mesaId) [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"DELETE FROM mesas WHERE id = ?"[39m[33m,[39m [mesaId])[33m;[39m[0m
+
+      at PromisePool.query (node_modules/mysql2/lib/promise/pool.js:36:22)
+      at Object.query (tests/socket_integration.test.js:99:39)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        1.706 s, estimated 2 s
+Ran all test suites matching tests/socket_integration.test.js.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.

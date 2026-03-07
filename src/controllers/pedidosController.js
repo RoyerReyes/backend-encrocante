@@ -1,31 +1,11 @@
-import { io } from "../app.js";
-import {
-  getAllPedidos,
-  getPedidosByUsuario,
-  createPedido,
-  updateEstadoPedido,
-  deletePedido,
-  getPedidoById
-} from "../models/pedido.js";
-import { getPlatilloById } from "../models/platillo.js";
+import pedidoService from "../services/pedidoService.js";
 
 /**
- * Listar pedidos:
- * - admin => todos
- * - mesero => solo los del usuario (req.user.id)
+ * Listar pedidos
  */
 export const listarPedidos = async (req, res, next) => {
-  const { rol, id: usuario_id } = req.user; // viene del JWT
-
   try {
-    let pedidos;
-    if (rol === "admin") {
-      pedidos = await getAllPedidos();
-    } else if (rol === "mesero") {
-      pedidos = await getPedidosByUsuario(usuario_id);
-    } else {
-      return res.status(403).json({ message: "No tienes permisos para ver pedidos" });
-    }
+    const pedidos = await pedidoService.listarPedidos(req.user, req.user.rol);
     res.json(pedidos);
   } catch (error) {
     next(error);
@@ -33,95 +13,57 @@ export const listarPedidos = async (req, res, next) => {
 };
 
 /**
- * Crear pedido (mesero o admin)
- * Request body: { mesa_id, cliente_id, tipo, observaciones, detalles: [{ platillo_id, cantidad, nota }] }
+ * Obtener un pedido por ID
  */
-export const crearPedido = async (req, res, next) => {
-  const { rol, id: usuario_id } = req.user;
-  if (rol !== "mesero" && rol !== "admin") {
-    return res.status(403).json({ message: "Solo meseros o admins pueden crear pedidos" });
-  }
-
+export const obtenerPedido = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    const { mesa_id, cliente_id, tipo, observaciones, detalles } = req.body;
-
-    // 1. Validar platillos y calcular total
-    let total = 0;
-    const detallesConPrecio = [];
-
-    for (const item of detalles) {
-      const platillo = await getPlatilloById(item.platillo_id);
-
-      if (!platillo) {
-        return res.status(400).json({ message: `El platillo con ID ${item.platillo_id} no existe.` });
-      }
-      if (!platillo.activo) {
-        return res.status(400).json({ message: `El platillo '${platillo.nombre}' no está disponible.` });
-      }
-
-      const subtotal = platillo.precio * item.cantidad;
-      total += subtotal;
-
-      detallesConPrecio.push({
-        ...item,
-        precio_unitario: platillo.precio,
-        subtotal
-      });
-    }
-
-    // 2. Crear el objeto del pedido
-    const pedidoData = {
-      mesa_id: mesa_id || null,
-      cliente_id: cliente_id || null,
-      tipo,
-      usuario_id,
-      total,
-      observaciones,
-      detalles: detallesConPrecio
-    };
-
-    // 3. Llamar al modelo para la transacción
-    const nuevoPedido = await createPedido(pedidoData);
-
-    res.status(201).json({
-      message: "Pedido creado 🚀",
-      pedido: nuevoPedido
-    });
-
+    const pedido = await pedidoService.obtenerPedido(id);
+    res.json(pedido);
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(error);
+    }
     next(error);
   }
 };
 
+/**
+ * Crear pedido
+ */
+export const crearPedido = async (req, res, next) => {
+  try {
+    const nuevoPedido = await pedidoService.crearPedido(req.body, req.user);
+    res.status(201).json({
+      message: "Pedido creado exitosamente",
+      pedido: nuevoPedido
+    });
+  } catch (error) {
+    // Si el error viene de lanzamientos manuales en el servicio (throw {statusCode...})
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(error);
+    }
+    next(error);
+  }
+};
 
 /**
- * Actualizar estado del pedido (solo admin)
- * Body: { estado }
+ * Actualizar estado del pedido
  */
 export const actualizarEstado = async (req, res, next) => {
-  const { rol } = req.user;
-  if (rol !== "admin") {
-    return res.status(403).json({ message: "Solo admin puede actualizar pedidos" });
-  }
+  const { id } = req.params;
+  const { estado: nuevoEstado, metodo_pago, monto_recibido, vuelto, descuento, puntos_canjeados } = req.body;
 
   try {
-    const { id } = req.params;
-    const { estado } = req.body;
-
-    const result = await updateEstadoPedido(id, estado);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Pedido no encontrado" });
-    }
-
-    // Obtener el pedido actualizado para emitirlo
-    const pedidoActualizado = await getPedidoById(id);
-
-    // Emitir evento de socket.io
-    io.emit("pedido_actualizado", pedidoActualizado);
-
-    res.json({ message: "Estado actualizado ✅" });
+    const pedidoActualizado = await pedidoService.actualizarEstado(id, nuevoEstado, req.user, req.user.rol, metodo_pago, monto_recibido, vuelto, descuento, puntos_canjeados);
+    res.json({
+      message: `Estado del pedido actualizado a "${nuevoEstado}"`,
+      pedido: pedidoActualizado
+    });
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(error);
+    }
     next(error);
   }
 };
@@ -130,20 +72,28 @@ export const actualizarEstado = async (req, res, next) => {
  * Eliminar pedido (solo admin)
  */
 export const eliminarPedido = async (req, res, next) => {
-  const { rol } = req.user;
-  if (rol !== "admin") {
-    return res.status(403).json({ message: "Solo admin puede eliminar pedidos" });
-  }
-
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const result = await deletePedido(id);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Pedido no encontrado" });
+    await pedidoService.eliminarPedido(id);
+    res.json({ message: "Pedido eliminado exitosamente" });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(error);
     }
-    res.json({ message: "Pedido eliminado 🗑️" });
+    next(error);
+  }
+};
+
+/**
+ * Toggle estado de detalle (item)
+ */
+export const toggleDetalle = async (req, res, next) => {
+  try {
+    const { id } = req.params; // This is detalleId
+    const result = await pedidoService.toggleDetalle(parseInt(id));
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
+

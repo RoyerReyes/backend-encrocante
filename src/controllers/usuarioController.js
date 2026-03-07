@@ -1,9 +1,9 @@
-import * as UserModel from '../models/usuario.js';
+import usuarioService from "../services/usuarioService.js";
 
 // Listar todos los usuarios
 export const listarUsuarios = async (req, res, next) => {
   try {
-    const usuarios = await UserModel.getAll();
+    const usuarios = await usuarioService.listarUsuarios();
     res.json(usuarios);
   } catch (error) {
     next(error);
@@ -13,12 +13,10 @@ export const listarUsuarios = async (req, res, next) => {
 // Obtener un usuario por ID
 export const obtenerUsuario = async (req, res, next) => {
   try {
-    const usuario = await UserModel.findById(req.params.id);
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
+    const usuario = await usuarioService.obtenerUsuario(req.params.id);
     res.json(usuario);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json(error);
     next(error);
   }
 };
@@ -26,15 +24,10 @@ export const obtenerUsuario = async (req, res, next) => {
 // Actualizar un usuario
 export const actualizarUsuario = async (req, res, next) => {
   try {
-    const { nombre, usuario, rol } = req.body;
-    const result = await UserModel.update(req.params.id, { nombre, usuario, rol });
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    res.json({ message: 'Usuario actualizado correctamente ✅' });
+    const result = await usuarioService.actualizarUsuario(req.params.id, req.body);
+    res.json(result);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json(error);
     next(error);
   }
 };
@@ -42,14 +35,10 @@ export const actualizarUsuario = async (req, res, next) => {
 // Eliminar un usuario
 export const eliminarUsuario = async (req, res, next) => {
   try {
-    const result = await UserModel.remove(req.params.id);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    res.json({ message: 'Usuario eliminado correctamente 🗑️' });
+    const result = await usuarioService.eliminarUsuario(req.params.id);
+    res.json(result);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json(error);
     next(error);
   }
 };

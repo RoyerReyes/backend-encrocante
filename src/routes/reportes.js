@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware, checkRole } from "../middlewares/authMiddleware.js";
-import { getReportePlatillos } from "../controllers/reportesController.js";
+import { getReportePlatillos, getVentasDiarias, getRendimientoMozos } from "../controllers/reportesController.js";
 
 const router = Router();
 
@@ -8,6 +8,17 @@ const router = Router();
 router.use(authMiddleware, checkRole("admin"));
 
 // GET /api/reportes/platillos-mas-vendidos
+// GET /api/reportes/platillos-mas-vendidos
 router.get("/platillos-mas-vendidos", getReportePlatillos);
+
+// GET /api/reportes/ventas-diarias
+router.get("/ventas-diarias", getVentasDiarias);
+
+// GET /api/reportes/rendimiento-mozos
+router.get("/rendimiento-mozos", getRendimientoMozos);
+
+// GET /api/reportes/stats
+import { getSystemStats } from "../controllers/reportesController.js";
+router.get("/stats", getSystemStats);
 
 export default router;

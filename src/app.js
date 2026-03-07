@@ -7,9 +7,14 @@ import { Server } from "socket.io";
 import platillosRoutes from "./routes/platillos.js";
 import authRoutes from "./routes/auth.js";
 import pedidosRoutes from "./routes/pedidos.js";
-import usuariosRoutes from "./routes/usuarios.js"; // Importar rutas de usuarios
-import { errorHandler } from "./middlewares/errorMiddleware.js";
+import usuariosRoutes from "./routes/usuarios.js";
 import detallePedidoRoutes from "./routes/detallePedido.js";
+import reportesRoutes from "./routes/reportes.js"; // ADDED
+import clientesRoutes from "./routes/clientes.js";
+import categoriasRoutes from "./routes/categorias.js"; // ADDED
+import configRoutes from "./routes/config.js";
+import notificationsRoutes from "./routes/notifications.js"; // ADDED
+import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 dotenv.config();
 
@@ -18,12 +23,20 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
 
-// Rutas (montadas)
+// Rutas
 app.use("/auth", authRoutes);
 app.use("/platillos", platillosRoutes);
 app.use("/pedidos", pedidosRoutes);
-app.use("/usuarios", usuariosRoutes); // Montar rutas de usuarios
+app.use("/usuarios", usuariosRoutes);
+app.use("/reportes", reportesRoutes);
+app.use("/clientes", clientesRoutes);
+app.use("/categorias", categoriasRoutes); // ADDED
+app.use("/config", configRoutes);
+app.use("/notifications", notificationsRoutes); // ADDED
+
+
 
 // Las rutas para actualizar y eliminar un detalle por su ID específico
 // Las rutas para crear y listar detalles estarán anidadas en pedidos.js
@@ -35,23 +48,17 @@ app.get("/", (req, res) => {
 });
 
 // Crear servidor HTTP + socket.io
+// Crear servidor HTTP
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-  },
-});
 
-// Ejemplo de conexión socket
-io.on("connection", (socket) => {
-  console.log("Cliente conectado:", socket.id);
-  socket.on("disconnect", () => {
-    console.log("Cliente desconectado:", socket.id);
-  });
-});
+// Inicializar Socket.IO
+// Nota: Importamos desde index.js o lo inicializamos aquí, pero ya no exportamos 'io' directamente para evitar dependencias circulares.
+// Sin embargo, como 'app.js' es importado por controladores, es mejor inicializarlo en 'index.js' o aquí pero SIN exportarlo para uso en controladores.
+// MEJOR ENFOQUE: Inicializar aquí, pero los controladores usan getIO().
+import { initSocket } from "./socket.js";
+const io = initSocket(server);
 
 // Manejador de errores centralizado (DEBE SER EL ÚLTIMO MIDDLEWARE)
 app.use(errorHandler);
 
-export { app, server, io };
+export { app, server };

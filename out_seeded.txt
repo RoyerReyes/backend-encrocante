@@ -1,0 +1,62 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+  console.log
+    [dotenv@17.2.2] injecting env (7) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    ✅ Pool de conexiones a MySQL creado.
+
+      at log (src/config/db.js:18:9)
+
+  console.log
+    [dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    Iniciando servidor para pruebas...
+
+      at Object.log (tests/socket_integration.test.js:26:13)
+
+(node:5560) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.log
+    Servidor de prueba escuchando en puerto 62648
+
+      at Server.log (tests/socket_integration.test.js:31:17)
+
+  console.log
+    Sembrando datos de prueba...
+
+      at Object.log (tests/socket_integration.test.js:37:13)
+
+  console.log
+    Limpiando recursos...
+
+      at Object.log (tests/socket_integration.test.js:98:13)
+
+FAIL tests/socket_integration.test.js
+  Integración REST -> Socket.IO
+    × Debe recibir evento 'pedido_creado' al crear pedido vía REST (1 ms)
+
+  ● Integración REST -> Socket.IO › Debe recibir evento 'pedido_creado' al crear pedido vía REST
+
+    Unknown column 'descripcion' in 'field list'
+
+    [0m [90m 36 |[39m     [90m// 1.5. Seed de datos (Categoria, Platillo, Mesa)[39m
+     [90m 37 |[39m     console[33m.[39mlog([32m"Sembrando datos de prueba..."[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 38 |[39m     [36mconst[39m [catResult] [33m=[39m [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"INSERT INTO categorias (nombre, descripcion) VALUES (?, ?)"[39m[33m,[39m [[32m"Categoria Test"[39m[33m,[39m [32m"Desc Test"[39m])[33m;[39m
+     [90m    |[39m                                            [31m[1m^[22m[39m
+     [90m 39 |[39m     categoriaId [33m=[39m catResult[33m.[39minsertId[33m;[39m
+     [90m 40 |[39m
+     [90m 41 |[39m     [36mconst[39m [platResult] [33m=[39m [36mawait[39m db[33m.[39mpromise()[33m.[39mquery([32m"INSERT INTO platillos (nombre, precio, categoria_id, activo) VALUES (?, ?, ?, ?)"[39m[33m,[39m [[32m"Platillo Test"[39m[33m,[39m [35m20.00[39m[33m,[39m categoriaId[33m,[39m [35m1[39m])[33m;[39m[0m
+
+      at PromisePool.query (node_modules/mysql2/lib/promise/pool.js:36:22)
+      at Object.query (tests/socket_integration.test.js:38:44)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        1.516 s, estimated 2 s
+Ran all test suites matching tests/socket_integration.test.js.
