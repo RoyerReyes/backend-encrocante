@@ -147,9 +147,10 @@ export const createPedido = async (pedidoData) => {
     await connection.beginTransaction();
 
     // 1. Insertar Pedido
+    // Para bases de datos en la nube (Aiven) donde NOW() es UTC (+0), forzamos -5 HORAS local (Perú/Colombia/Ecuador) con DATE_SUB
     const [result] = await connection.query(
-      `INSERT INTO pedidos(mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo, estado)
-  VALUES(?, ?, ?, ?, ?, ?, ?, 'pendiente')`,
+      `INSERT INTO pedidos(mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo, estado, fecha)
+  VALUES(?, ?, ?, ?, ?, ?, ?, 'pendiente', DATE_SUB(NOW(), INTERVAL 5 HOUR))`,
       [mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo]
     );
     const pedidoId = result.insertId;
