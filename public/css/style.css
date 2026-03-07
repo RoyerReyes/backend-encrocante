@@ -159,3 +159,29 @@ header h1 {
         font-size: 5em;
     }
 }
+
+/* Responsive para Celulares (Vista Vertical) */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.5em; /* Reducir titulo principal */
+    }
+
+    .board {
+        flex-direction: column; /* Apilar columnas verticalmente */
+        overflow-y: auto; /* Permitir scroll si son muchas ordenes */
+    }
+
+    .column {
+        flex: none; /* Quitar flex 1 para que tomen su tamaño natural */
+        min-height: 50vh; /* Darles altura mínima */
+    }
+
+    .cooking {
+        border-right: none;
+        border-bottom: 2px solid #333;
+    }
+
+    .column h2 {
+        font-size: 1.5em; /* Reducir subtitulos */
+    }
+}
