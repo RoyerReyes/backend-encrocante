@@ -26,8 +26,9 @@ if (process.env.DB_URL) {
   poolConfig.password = dbUrl.password;
   poolConfig.database = dbUrl.pathname.substring(1); // Remover la barra inicial '/'
 } else {
-  // Configuración tradicional para entorno local
+  // Configuración tradicional para entorno local o variables individuales de hosting
   poolConfig.host = isTest ? '127.0.0.1' : process.env.DB_HOST;
+  poolConfig.port = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306;
   poolConfig.user = process.env.DB_USER;
   poolConfig.password = process.env.DB_PASSWORD;
   poolConfig.database = process.env.DB_NAME;
