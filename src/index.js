@@ -2,9 +2,11 @@ import { server } from './app.js';
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
+const HOST_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+
 server.listen(PORT, () => {
-  console.log(`🔥 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📺 Pantalla de Cocina/Cliente: http://localhost:${PORT}/pantalla.html`);
+  console.log(`🔥 Servidor corriendo en ${HOST_URL}`);
+  console.log(`📺 Pantalla de Cocina/Cliente: ${HOST_URL}/pantalla.html`);
 });
 
 // Manejo de promesas rechazadas no controladas
