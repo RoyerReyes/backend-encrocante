@@ -48,6 +48,25 @@ export const crearPedido = async (req, res, next) => {
 };
 
 /**
+ * Actualizar pedido completo (editar items, etc)
+ */
+export const actualizarPedido = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const pedidoActualizado = await pedidoService.actualizarPedido(id, req.body, req.user, req.user.rol);
+    res.json({
+      message: "Pedido actualizado exitosamente",
+      pedido: pedidoActualizado
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(error);
+    }
+    next(error);
+  }
+};
+
+/**
  * Actualizar estado del pedido
  */
 export const actualizarEstado = async (req, res, next) => {

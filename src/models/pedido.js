@@ -184,6 +184,71 @@ export const createPedido = async (pedidoData) => {
   }
 };
 
+// Actualizar pedido COMPLETO (editar items)
+export const updatePedidoCompleto = async (pedidoId, pedidoData) => {
+  const { mesa_id, cliente_id, nombre_cliente, total, observaciones, tipo, detalles } = pedidoData;
+  const connection = await db.promise().getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Obtener detalles existentes para preservar su estado 'listo'
+    const [existingDetails] = await connection.query("SELECT platillo_id, listo FROM detalle_pedido WHERE pedido_id = ?", [pedidoId]);
+    const mapListoStatus = new Map(existingDetails.map(d => [d.platillo_id, d.listo]));
+
+    // 2. Actualizar tabla pedidos
+    await connection.query(
+      `UPDATE pedidos SET mesa_id = ?, cliente_id = ?, nombre_cliente = ?, total = ?, observaciones = ?, tipo = ? WHERE id = ?`,
+      [mesa_id, cliente_id, nombre_cliente, total, observaciones, tipo, pedidoId]
+    );
+
+    // 3. Eliminar items anteriores
+    await connection.query("DELETE FROM detalle_pedido WHERE pedido_id = ?", [pedidoId]);
+
+    // 4. Insertar nuevos items y preservar 'listo'
+    if (detalles && detalles.length > 0) {
+      const valoresDetalles = detalles.map(d => [
+        pedidoId,
+        d.platillo_id,
+        d.cantidad,
+        d.precio_unitario,
+        d.subtotal,
+        d.nota || d.notas || null,
+        mapListoStatus.get(d.platillo_id) ? 1 : 0 // Conserva true/false dependiendo de si ya estaba listo
+      ]);
+
+      await connection.query(
+        `INSERT INTO detalle_pedido(pedido_id, platillo_id, cantidad, precio_unitario, subtotal, nota, listo) VALUES ?`,
+        [valoresDetalles]
+      );
+    }
+
+    // 5. Verificar si el cambio de items hace que TODO el pedido esté listo automáticamente
+    // Si metieron ítems nuevos, probablemente regrese a 'en_preparacion'
+    const [currentStatus] = await connection.query("SELECT estado FROM pedidos WHERE id = ?", [pedidoId]);
+    let currentEstado = currentStatus[0]?.estado;
+    
+    // Solo modificar estado automáticamente si está en_preparacion o listo
+    if (currentEstado === 'en_preparacion' || currentEstado === 'listo') {
+        const [allDetalles] = await connection.query("SELECT listo FROM detalle_pedido WHERE pedido_id = ?", [pedidoId]);
+        const todoListo = allDetalles.length > 0 && allDetalles.every(d => d.listo === 1);
+        
+        if (todoListo && currentEstado !== 'listo') {
+            await connection.query("UPDATE pedidos SET estado = 'listo' WHERE id = ?", [pedidoId]);
+        } else if (!todoListo && currentEstado === 'listo') {
+            await connection.query("UPDATE pedidos SET estado = 'en_preparacion' WHERE id = ?", [pedidoId]);
+        }
+    }
+
+    await connection.commit();
+    return await getPedidoById(pedidoId, connection);
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
 
 // Actualizar estado de pedido
 export const updateEstadoPedido = async (id, estado, metodo_pago = null, monto_recibido = null, vuelto = null, descuento = null, puntos_canjeados = null) => {

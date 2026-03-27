@@ -9,7 +9,7 @@ import {
     createPedido as createPedidoModel,
     updateEstadoPedido as updateEstadoPedidoModel,
     deletePedido as deletePedidoModel,
-
+    updatePedidoCompleto as updatePedidoCompletoModel,
     getPedidoById
 } from "../models/pedido.js";
 import { toggleItemStatus } from "../models/detallePedido.js";
@@ -117,6 +117,82 @@ class PedidoService {
         }
 
         return nuevoPedido;
+    }
+
+    // Editar Pedido (Agregar/Quitar platos)
+    async actualizarPedido(pedidoId, datosPedido, usuario, rol) {
+        // Validar Ownership
+        const validacionOwnership = await validarOwnershipPedido(parseInt(pedidoId), usuario.id, rol);
+        if (!validacionOwnership.valido) throw { statusCode: validacionOwnership.statusCode, message: validacionOwnership.error };
+
+        const pedidoOriginal = validacionOwnership.pedido;
+
+        // No permitir editar si fue cancelado, entregado o pagado
+        const noEditables = ['cancelado', 'entregado', 'pagado'];
+        if (noEditables.includes(pedidoOriginal.estado)) {
+            throw { statusCode: 400, message: `No se puede editar un pedido cuando su estado es: ${pedidoOriginal.estado}` };
+        }
+
+        let { mesa_id, numero_mesa, cliente_id, nombre_cliente, tipo, observaciones, detalles } = datosPedido;
+
+        if (!mesa_id && numero_mesa && tipo === 'mesa') {
+            const [mesas] = await db.promise().query(
+                "SELECT id FROM mesas WHERE numero = ? OR numero = CONCAT('Mesa ', ?) OR id = ?",
+                [numero_mesa, numero_mesa, numero_mesa]
+            );
+            if (mesas.length > 0) mesa_id = mesas[0].id;
+            else throw { statusCode: 400, message: MENSAJES_ERROR.DATOS_INVALIDOS, errores: [`Mesa "${numero_mesa}" no encontrada`] };
+        }
+
+        const validacionTipo = validarCamposPedido(tipo, { mesa_id, cliente_id });
+        if (!validacionTipo.valido) throw { statusCode: 400, message: MENSAJES_ERROR.DATOS_INVALIDOS, errores: validacionTipo.errores };
+
+        if (mesa_id) {
+            const validacionMesa = await validarMesa(mesa_id, db);
+            if (!validacionMesa.valido) throw { statusCode: validacionMesa.statusCode, message: validacionMesa.error };
+        }
+
+        const validacionPlatillos = await validarPlatillosOptimizado(detalles, db);
+        if (!validacionPlatillos.valido) throw { statusCode: validacionPlatillos.statusCode, message: validacionPlatillos.error };
+
+        const { platillosMap } = validacionPlatillos;
+        let total = 0;
+        const detallesConPrecio = [];
+
+        for (const item of detalles) {
+            const platillo = platillosMap.get(item.platillo_id);
+            const subtotal = platillo.precio * item.cantidad;
+            total += subtotal;
+            detallesConPrecio.push({ ...item, precio_unitario: platillo.precio, subtotal });
+        }
+
+        const pedidoData = {
+            mesa_id: mesa_id || null,
+            cliente_id: cliente_id || null,
+            nombre_cliente: nombre_cliente || null,
+            tipo,
+            total,
+            observaciones,
+            detalles: detallesConPrecio
+        };
+
+        const pedidoEditado = await updatePedidoCompletoModel(pedidoId, pedidoData);
+
+        // Emitir Socket (se marca como "pedido_actualizado" general para UI)
+        try {
+            getIO().emit(SOCKET_EVENTS.ESTADO_ACTUALIZADO, {
+                id: pedidoEditado.id,
+                estado: pedidoEditado.estado,
+                pedido: pedidoEditado,
+                op: 'edit'
+            });
+            // Emit special event to refresh kitchen displays if items changed explicitly
+            getIO().emit('pedido_editado', pedidoEditado);
+        } catch (e) {
+            console.error("Error emitiendo evento socket de edición:", e.message);
+        }
+
+        return pedidoEditado;
     }
 
     // Actualizar Estado
