@@ -27,7 +27,7 @@
     "supertest": "^7.1.4"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node run_migration_delivery.js && node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
   },
