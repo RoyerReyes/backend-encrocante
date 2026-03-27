@@ -47,8 +47,8 @@ export const validarCamposPorTipo = (tipo, data) => {
     errores.push('El campo mesa_id es requerido para pedidos de tipo mesa');
   }
 
-  if (camposRequeridos.cliente_id && !data.cliente_id) {
-    errores.push('El campo cliente_id es requerido para pedidos de tipo delivery o recojo');
+  if (camposRequeridos.cliente_id && !data.cliente_id && !data.nombre_cliente) {
+    errores.push('Se requiere seleccionar un cliente o ingresar su nombre para pedidos de tipo delivery o recojo');
   }
 
   return {

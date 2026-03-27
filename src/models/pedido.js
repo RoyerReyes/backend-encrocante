@@ -4,7 +4,7 @@ import { createDetallesPedido } from "./detallePedido.js";
 export const getPedidoById = async (id) => {
   // 1. Obtener el pedido principal
   const sqlPedido = `
-    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.observaciones, p.nombre_cliente, p.metodo_pago, p.monto_recibido, p.vuelto,
+    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.costo_delivery, p.observaciones, p.nombre_cliente, p.metodo_pago, p.monto_recibido, p.vuelto,
            u.id AS usuario_id, u.nombre AS mesero,
            m.id AS mesa_id, m.numero AS mesa,
            c.id AS cliente_id, c.nombre AS cliente
@@ -43,7 +43,7 @@ export const getPedidoById = async (id) => {
 export const getAllPedidos = async () => {
   // 1. Obtener todos los pedidos
   const sqlPedidos = `
-    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.observaciones, p.nombre_cliente, p.metodo_pago, p.monto_recibido, p.vuelto,
+    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.costo_delivery, p.observaciones, p.nombre_cliente, p.metodo_pago, p.monto_recibido, p.vuelto,
            u.id AS usuario_id, u.nombre AS mesero,
            m.id AS mesa_id, m.numero AS mesa,
            c.id AS cliente_id, c.nombre AS cliente
@@ -92,7 +92,7 @@ export const getAllPedidos = async () => {
 export const getPedidosByUsuario = async (usuario_id) => {
   // 1. Obtener pedidos del usuario
   const sqlPedidos = `
-    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.observaciones, p.nombre_cliente, p.metodo_pago, p.monto_recibido, p.vuelto,
+    SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.costo_delivery, p.observaciones, p.nombre_cliente, p.metodo_pago, p.monto_recibido, p.vuelto,
            m.id AS mesa_id, m.numero AS mesa,
            c.id AS cliente_id, c.nombre AS cliente,
            u.nombre AS mesero
@@ -140,7 +140,7 @@ export const getPedidosByUsuario = async (usuario_id) => {
 
 // Crear pedido y sus detalles en una transacción
 export const createPedido = async (pedidoData) => {
-  const { mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo } = pedidoData;
+  const { mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo, costo_delivery } = pedidoData;
 
   const connection = await db.promise().getConnection();
   try {
@@ -149,9 +149,9 @@ export const createPedido = async (pedidoData) => {
     // 1. Insertar Pedido
     // Para bases de datos en la nube (Aiven) donde NOW() es UTC (+0), forzamos -5 HORAS local (Perú/Colombia/Ecuador) con DATE_SUB
     const [result] = await connection.query(
-      `INSERT INTO pedidos(mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo, estado, fecha)
-  VALUES(?, ?, ?, ?, ?, ?, ?, 'pendiente', DATE_SUB(NOW(), INTERVAL 5 HOUR))`,
-      [mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo]
+      `INSERT INTO pedidos(mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo, estado, costo_delivery, fecha)
+  VALUES(?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, DATE_SUB(NOW(), INTERVAL 5 HOUR))`,
+      [mesa_id, cliente_id, usuario_id, nombre_cliente, total, observaciones, tipo, costo_delivery || 0.00]
     );
     const pedidoId = result.insertId;
 
@@ -186,7 +186,7 @@ export const createPedido = async (pedidoData) => {
 
 // Actualizar pedido COMPLETO (editar items)
 export const updatePedidoCompleto = async (pedidoId, pedidoData) => {
-  const { mesa_id, cliente_id, nombre_cliente, total, observaciones, tipo, detalles } = pedidoData;
+  const { mesa_id, cliente_id, nombre_cliente, total, observaciones, tipo, costo_delivery, detalles } = pedidoData;
   const connection = await db.promise().getConnection();
   try {
     await connection.beginTransaction();
@@ -197,8 +197,8 @@ export const updatePedidoCompleto = async (pedidoId, pedidoData) => {
 
     // 2. Actualizar tabla pedidos
     await connection.query(
-      `UPDATE pedidos SET mesa_id = ?, cliente_id = ?, nombre_cliente = ?, total = ?, observaciones = ?, tipo = ? WHERE id = ?`,
-      [mesa_id, cliente_id, nombre_cliente, total, observaciones, tipo, pedidoId]
+      `UPDATE pedidos SET mesa_id = ?, cliente_id = ?, nombre_cliente = ?, total = ?, observaciones = ?, tipo = ?, costo_delivery = ? WHERE id = ?`,
+      [mesa_id, cliente_id, nombre_cliente, total, observaciones, tipo, costo_delivery || 0.00, pedidoId]
     );
 
     // 3. Eliminar items anteriores
@@ -318,7 +318,7 @@ export const deletePedido = async (id) => {
 export const getActivePedidos = async () => {
   // 1. Obtener pedidos filtrados por estado
   const sqlPedidos = `
-      SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.observaciones, p.nombre_cliente, p.metodo_pago,
+      SELECT p.id, p.fecha, p.estado, p.tipo, p.total, p.costo_delivery, p.observaciones, p.nombre_cliente, p.metodo_pago,
     u.id AS usuario_id, u.nombre AS mesero,
       m.id AS mesa_id, m.numero AS mesa
       FROM pedidos p

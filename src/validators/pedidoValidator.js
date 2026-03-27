@@ -9,6 +9,7 @@ export const createPedidoSchema = Joi.object({
   cliente_id: Joi.number().integer().positive().allow(null),
   nombre_cliente: Joi.string().max(100).allow(null, ''),
   tipo: Joi.string().valid(...TIPOS_ARRAY).required(),
+  costo_delivery: Joi.number().min(0).allow(null).optional(),
   observaciones: Joi.string().max(LIMITES.MAX_LENGTH_OBSERVACIONES).allow(null, ''),
   detalles: Joi.array().items(Joi.object({
     platillo_id: Joi.number().integer().positive().required(),
