@@ -28,6 +28,12 @@ export const CONFIG_PUNTOS = {
   PUNTOS_POR_SOL_CANJE: 1 // 1 punto = 1 sol de descuento (Valor alto para empezar, ajustable)
 };
 
+export const OTA = {
+  ANDROID_VERSION: process.env.OTA_ANDROID_VERSION || "1.0.3",
+  ANDROID_URL: process.env.OTA_ANDROID_URL || "https://backend-encrocante-pd4y.onrender.com/uploads/apk/app-release.apk",
+  FORCE_UPDATE: process.env.OTA_FORCE_UPDATE !== 'false' // defaults to true
+};
+
 export const ROLES = {
   ADMIN: 'admin',
   MESERO: 'mesero',

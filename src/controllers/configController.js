@@ -1,9 +1,14 @@
-import { CONFIG_PUNTOS, LIMITES } from "../constants/appConfig.js";
+import { CONFIG_PUNTOS, LIMITES, OTA } from "../constants/appConfig.js";
 
 export const getAppConfig = (req, res) => {
     res.json({
         puntos: CONFIG_PUNTOS,
-        limites: LIMITES
+        limites: LIMITES,
+        ota: {
+            ...OTA,
+            // Construimos la URL dinámica si la variable de entorno está vacía para probar local.
+            ANDROID_URL: process.env.OTA_ANDROID_URL || `${req.protocol}://${req.get('host')}/uploads/apk/app-release.apk`
+        }
     });
 };
 

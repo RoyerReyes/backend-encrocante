@@ -14,25 +14,6 @@ import { createPedidoSchema, updateEstadoPedidoSchema } from "../validators/pedi
 
 const router = Router();
 
-import db from "../config/db.js";
-
-// === MIGRATION ENDPOINT TEMPORAL ===
-router.get("/run-migration", async (req, res) => {
-  try {
-    const result = await db.promise().query(
-      "ALTER TABLE pedidos ADD COLUMN costo_delivery DECIMAL(10,2) DEFAULT 0.00;"
-    );
-    res.json({ success: true, message: "Migración de costo_delivery ejecutada", result });
-  } catch (error) {
-    if (error.code === 'ER_DUP_FIELDNAME') {
-      res.json({ success: true, message: "La columna ya existe" });
-    } else {
-      res.status(500).json({ success: false, error: error.message, code: error.code });
-    }
-  }
-});
-// ===================================
-
 // Todas las rutas están protegidas por authMiddleware
 router.use(authMiddleware);
 
