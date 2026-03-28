@@ -67,7 +67,7 @@ class PedidoService {
         }
 
         // Validaciones
-        const validacionTipo = validarCamposPedido(tipo, { mesa_id, cliente_id });
+        const validacionTipo = validarCamposPedido(tipo, { mesa_id, cliente_id, nombre_cliente });
         if (!validacionTipo.valido) throw { statusCode: 400, message: MENSAJES_ERROR.DATOS_INVALIDOS, errores: validacionTipo.errores };
 
         if (mesa_id) {
@@ -144,7 +144,7 @@ class PedidoService {
             else throw { statusCode: 400, message: MENSAJES_ERROR.DATOS_INVALIDOS, errores: [`Mesa "${numero_mesa}" no encontrada`] };
         }
 
-        const validacionTipo = validarCamposPedido(tipo, { mesa_id, cliente_id });
+        const validacionTipo = validarCamposPedido(tipo, { mesa_id, cliente_id, nombre_cliente });
         if (!validacionTipo.valido) throw { statusCode: 400, message: MENSAJES_ERROR.DATOS_INVALIDOS, errores: validacionTipo.errores };
 
         if (mesa_id) {
