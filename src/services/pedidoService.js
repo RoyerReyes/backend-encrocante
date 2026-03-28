@@ -95,6 +95,9 @@ class PedidoService {
             detallesConPrecio.push({ ...item, precio_unitario: platillo.precio, subtotal });
         }
 
+        const costoDeliveryCalculado = datosPedido.costo_delivery ? parseFloat(datosPedido.costo_delivery) : 0;
+        total += costoDeliveryCalculado;
+
         // Persistir
         const pedidoData = {
             mesa_id: mesa_id || null,
@@ -165,6 +168,9 @@ class PedidoService {
             total += subtotal;
             detallesConPrecio.push({ ...item, precio_unitario: platillo.precio, subtotal });
         }
+
+        const costoDeliveryCalculado = datosPedido.costo_delivery ? parseFloat(datosPedido.costo_delivery) : 0;
+        total += costoDeliveryCalculado;
 
         const pedidoData = {
             mesa_id: mesa_id || null,
