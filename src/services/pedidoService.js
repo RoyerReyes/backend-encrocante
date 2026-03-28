@@ -106,7 +106,8 @@ class PedidoService {
             tipo,
             usuario_id: usuario.id,
             total,
-            observaciones,
+            costo_delivery: costoDeliveryCalculado,
+            observaciones: datosPedido.observaciones || null,
             detalles: detallesConPrecio
         };
 
@@ -178,6 +179,7 @@ class PedidoService {
             nombre_cliente: nombre_cliente || null,
             tipo,
             total,
+            costo_delivery: costoDeliveryCalculado,
             observaciones,
             detalles: detallesConPrecio
         };
