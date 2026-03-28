@@ -68,7 +68,11 @@ function renderOrderCard(pedido, container) {
     // Usar número de mesa si existe, sino ID (últimos 3 dígitos)
     let displayNum = `P-${String(pedido.id).slice(-3)}`;
 
-    if (pedido.mesa) {
+    if (pedido.tipo === 'delivery') {
+        displayNum = 'Delivery';
+    } else if (pedido.tipo === 'recojo') {
+        displayNum = 'Para Llevar';
+    } else if (pedido.mesa) {
         // Si ya incluye "Mesa" (insensitive), se usa tal cual. Si no, se agrega el prefijo.
         if (pedido.mesa.toString().toLowerCase().includes('mesa')) {
             displayNum = pedido.mesa;
