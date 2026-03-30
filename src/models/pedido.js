@@ -25,9 +25,10 @@ export const getPedidoById = async (id) => {
   // 2. Obtener los detalles del pedido
   const sqlDetalles = `
     SELECT dp.id, dp.platillo_id, dp.cantidad, dp.precio_unitario, dp.subtotal, dp.nota, dp.listo,
-           pl.nombre AS platillo_nombre
+           pl.nombre AS platillo_nombre, c.nombre AS categoria_nombre
     FROM detalle_pedido dp
     INNER JOIN platillos pl ON dp.platillo_id = pl.id
+    LEFT JOIN categorias c ON pl.categoria_id = c.id
     WHERE dp.pedido_id = ?
   `;
   const [detalles] = await db.promise().query(sqlDetalles, [id]);
@@ -65,9 +66,10 @@ export const getAllPedidos = async () => {
   // 3. Obtener todos los detalles en una sola query (optimizado)
   const sqlDetalles = `
     SELECT dp.id, dp.pedido_id, dp.platillo_id, dp.cantidad, dp.precio_unitario, dp.subtotal, dp.nota, dp.listo,
-           pl.nombre AS platillo_nombre
+           pl.nombre AS platillo_nombre, c.nombre AS categoria_nombre
     FROM detalle_pedido dp
     INNER JOIN platillos pl ON dp.platillo_id = pl.id
+    LEFT JOIN categorias c ON pl.categoria_id = c.id
     WHERE dp.pedido_id IN (?)
   `;
   const [detalles] = await db.promise().query(sqlDetalles, [pedidoIds]);
@@ -115,9 +117,10 @@ export const getPedidosByUsuario = async (usuario_id) => {
   // 3. Obtener todos los detalles en una sola query
   const sqlDetalles = `
     SELECT dp.id, dp.pedido_id, dp.platillo_id, dp.cantidad, dp.precio_unitario, dp.subtotal, dp.nota, dp.listo,
-    pl.nombre AS platillo_nombre
+           pl.nombre AS platillo_nombre, c.nombre AS categoria_nombre
     FROM detalle_pedido dp
     INNER JOIN platillos pl ON dp.platillo_id = pl.id
+    LEFT JOIN categorias c ON pl.categoria_id = c.id
     WHERE dp.pedido_id IN(?)
   `;
   const [detalles] = await db.promise().query(sqlDetalles, [pedidoIds]);

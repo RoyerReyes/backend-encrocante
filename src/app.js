@@ -13,6 +13,7 @@ import reportesRoutes from "./routes/reportes.js"; // ADDED
 import clientesRoutes from "./routes/clientes.js";
 import categoriasRoutes from "./routes/categorias.js"; // ADDED
 import salsasRoutes from "./routes/salsasRoutes.js"; // ADDED
+import presasRoutes from "./routes/presasRoutes.js"; // ADDED
 import configRoutes from "./routes/config.js";
 import notificationsRoutes from "./routes/notifications.js"; // ADDED
 import { errorHandler } from "./middlewares/errorMiddleware.js";
@@ -39,6 +40,7 @@ app.use("/reportes", reportesRoutes);
 app.use("/clientes", clientesRoutes);
 app.use("/categorias", categoriasRoutes); // ADDED
 app.use("/salsas", salsasRoutes); // ADDED
+app.use("/presas", presasRoutes); // ADDED
 app.use("/config", configRoutes);
 app.use("/notifications", notificationsRoutes); // ADDED
 
