@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getSalsas, toggleSalsa } from '../controllers/salsasController.js';
-import { verificarToken } from '../middleware/authMiddleware.js';
+import { verificarToken } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
