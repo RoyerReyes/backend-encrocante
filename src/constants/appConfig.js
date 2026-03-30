@@ -29,8 +29,8 @@ export const CONFIG_PUNTOS = {
 };
 
 export const OTA = {
-  ANDROID_VERSION: process.env.OTA_ANDROID_VERSION || "1.0.8",
-  ANDROID_URL: process.env.OTA_ANDROID_URL || "https://backend-encrocante-pd4y.onrender.com/uploads/apk/app-release.apk",
+  ANDROID_VERSION: "1.0.8",
+  ANDROID_URL: "https://backend-encrocante-pd4y.onrender.com/uploads/apk/app-release.apk",
   FORCE_UPDATE: process.env.OTA_FORCE_UPDATE !== 'false' // defaults to true
 };
 
